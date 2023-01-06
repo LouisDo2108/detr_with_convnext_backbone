@@ -14,7 +14,7 @@ conda activate detr
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu/:/home/whatever/miniconda3/lib
 # source ~/.bashrc
 
-nvidia-smi
+# nvidia-smi
 
 # python -m torch.distributed.launch --nproc_per_node=1 --use_env \
 # /home/htluc/detr/main.py \
@@ -23,6 +23,7 @@ nvidia-smi
 torchrun /home/htluc/detr/main.py \
 --coco_path /home/htluc/datasets/coco/ \
 --lr_drop 100 \
+--lr_backbone 4e-3 \
 --epochs 100 \
 --batch_size 2 \
 --output_dir /home/htluc/detr/experiments \

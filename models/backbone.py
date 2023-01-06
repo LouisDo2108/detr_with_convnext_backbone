@@ -114,8 +114,13 @@ class Backbone_ConvNext(BackboneBase):
         #     nn.BatchNorm2d(2048),
         #     nn.ReLU(),
         # )
-        backbone = timm.create_model("convnext_base")
-        num_channels = 1024
+        backbone = timm.create_model("convnext_pico")
+        # backbone.stages[3].blocks[-1].gamma = nn.Parameter(1e-6 * torch.ones(2048)) if 2048 > 0 else None
+        # backbone.stages[3].blocks[-1].conv_dw = nn.Conv2d(1024, 2048, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), groups=1024)
+        # backbone.stages[3].blocks[-1].norm = nn.LayerNorm((2048, ), eps=1e-06, elementwise_affine=True)
+        # backbone.stages[3].blocks[-1].mlp.fc1 = nn.Linear(2048, 4096, bias=True)
+        # backbone.stages[3].blocks[-1].mlp.fc2 = nn.Linear(4096, 2048, bias=True)
+        num_channels = 512
         super().__init__(backbone, train_backbone, num_channels, return_interm_layers)
 ###
 
