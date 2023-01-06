@@ -17,7 +17,6 @@ from .position_encoding import build_position_encoding
 
 import timm
 
-
 class FrozenBatchNorm2d(torch.nn.Module):
     """
     BatchNorm2d where the batch statistics and the affine parameters are fixed.
@@ -61,9 +60,9 @@ class BackboneBase(nn.Module):
 
     def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_layers: bool):
         super().__init__()
-        # for name, parameter in backbone.named_parameters():
-        #     if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
-        #         parameter.requires_grad_(False)
+        for name, parameter in backbone.named_parameters():
+            if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
+                parameter.requires_grad_(False)
         # if return_interm_layers:
         #     return_layers = {"layer1": "0", "layer2": "1", "layer3": "2", "layer4": "3"}
         # else:
@@ -105,16 +104,8 @@ class Backbone_ConvNext(BackboneBase):
                  train_backbone: bool,
                  return_interm_layers: bool,
                  dilation: bool):
-        # backbone = getattr(torchvision.models, name)(
-        #     replace_stride_with_dilation=[False, False, dilation],
-        #     pretrained=is_main_process(), norm_layer=FrozenBatchNorm2d)
-        # num_channels = 512 if name in ('resnet18', 'resnet34') else 2048
-        # convnext.head = nn.Sequential(
-        #     nn.Linear(1024, 2048),
-        #     nn.BatchNorm2d(2048),
-        #     nn.ReLU(),
-        # )
-        backbone = timm.create_model("convnext_base")
+        # backbone = timm.create_model("convnext_base")
+        backbone = timm.create_model("convnext_base", num_classes=1024)
         num_channels = 1024
         super().__init__(backbone, train_backbone, num_channels, return_interm_layers)
 ###
@@ -140,8 +131,10 @@ def build_backbone(args):
     position_embedding = build_position_encoding(args)
     train_backbone = args.lr_backbone > 0
     return_interm_layers = args.masks
+    ###
     # backbone = Backbone(args.backbone, train_backbone, return_interm_layers, args.dilation)
     backbone = Backbone_ConvNext(args.backbone, train_backbone, return_interm_layers, args.dilation)
+    ###
     model = Joiner(backbone, position_embedding)
     model.num_channels = backbone.num_channels
     return model
